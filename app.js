@@ -19,20 +19,19 @@ socket.io.route('init', function(req){
 
 socket.io.route('announce', function(req){
 
-    //fetch nearest coordinate to self given an array of lassos and friends coordinates.
+    //send updated coordinates to anyone listening to the main room for this user.
+    req.io.room(req.data.id).broadcast('update', req.data);
 
-    //determine distance between self and nearest coordinate in feet.
+    //TODO: fetch nearest coordinate to self given an array of lassos and friends coordinates.
+
+    //TODO: determine distance between self and nearest coordinate in feet.
     var distance = 5200;
 
-    //seconds until next update = (distance / resolution)^throttle where throttle is less than 1.
-    var seconds = Math.round(Math.pow(distance / settings.resolution, settings.throttle));
+    var milliseconds = Math.round(Math.pow(distance / settings.resolution, settings.throttle) * 1000);
 
-    //schedule locate broadcast for the control room.
     var room = req.io.room(req.data.id + ':ctrl');
     var job = new schedule.Job(function(){ locate(room); });
-    job.schedule(moment().add(seconds, 'seconds'));
-
-    req.io.room(req.data.id).broadcast('update', req.data);
+    job.schedule(moment().add(milliseconds, 'milliseconds'));
 });
 
 module.exports = socket;
