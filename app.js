@@ -4,17 +4,13 @@ var settings = require('./settings');
 var schedule = require('node-schedule');
 var geolib = require('geolib');
 
-function locate(room){
-    room.broadcast('locate');
-}
-
 socket.http().io();
 
 socket.io.route('init', function(req){
     req.io.join(req.data);
     req.io.join(req.data + ':ctrl');
     var room = req.io.room(req.data + ':ctrl');
-    locate(room);
+    room.broadcast('locate');
 });
 
 socket.io.route('announce', function(req){
@@ -30,7 +26,7 @@ socket.io.route('announce', function(req){
     var milliseconds = Math.round(Math.pow(distance / settings.resolution, settings.throttle) * 1000);
 
     var room = req.io.room(req.data.id + ':ctrl');
-    var job = new schedule.Job(function(){ locate(room); });
+    var job = new schedule.Job(function(){ room.broadcast('locate'); });
     job.schedule(moment().add(milliseconds, 'milliseconds'));
 });
 
