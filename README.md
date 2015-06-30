@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Ionic geofence sample project
 
 [![Build Status](https://travis-ci.org/cowbell/ionic-geofence.svg?branch=master)](https://travis-ci.org/cowbell/ionic-geofence)
@@ -45,3 +46,7 @@ ionic run ios
 This software is released under the [MIT License](https://raw.githubusercontent.com/tsubik/ionic-geofence/master/LICENSE).
 
 © 2014 Tomasz Subik. All rights reserved
+=======
+# lasso-location
+Location server for Lasso 
+>>>>>>> e8d0fab71cba83da0a3364724e78e74054cf73ae
