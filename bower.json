@@ -6,6 +6,7 @@
   },
   "dependencies": {
     "angularjs-toaster": "~0.4.14",
-    "leaflet": "~0.7.3"
+    "leaflet": "~0.7.3",
+    "angular-loggly-logger": "~0.1.2"
   }
 }

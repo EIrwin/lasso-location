@@ -1,5 +1,135 @@
 angular.module('ionic-geofence')
+    
+    .controller('CoordinatesCtrl', function ($scope, $log, geolocationService, geofenceService, $ionicLoading) {
+        $log.info('Coordinates controller loaded...');
+
+        $ionicLoading.show({
+            template:'Obtaining current location...',
+            duration:3000
+        });
+        var options = {
+          enableHighAccuracy: true,
+          timeout: 40000,
+          maximumAge: 0
+        };
+
+        $scope.coordinates = [];
+
+        navigator.geolocation.watchPosition(function(position){
+            $log.info('position changed',position)
+
+            $scope.coordinates.push({
+                latitude:position.coords.latitude,
+                longitude:position.coords.longitude
+            })
+
+            $scope.$apply();
+        
+        },function(reason){
+            $log.error('watchPosition failed',reason)
+        },options)
+
+    })
+    .controller('MapCtrl', function ($scope, $log, geolocationService, geofenceService, $ionicLoading) {
+        $log.info('Map controller loaded...');
+
+        $ionicLoading.show({
+            template:'Obtaining current location...',
+            duration:3000
+        });
+
+        var lat = 33.729533599999996;
+        var lng = -111.98840829999999;
+
+        $scope.center = {
+            lat:lat,
+            lng:lng,
+            zoom:12
+        };
+
+        $scope.markers = {
+            marker: {
+                draggable: true,
+                message: 'Sample message',
+                lat: lat,
+                lng: lng,
+                icon: {}
+            }
+        };
+
+        $scope.paths = {
+            circle: {
+                type: 'circle',
+                radius: 10,
+                latlngs: $scope.markers.marker,
+                clickable: false
+            }
+        };
+
+        var options = {
+          enableHighAccuracy: true,
+          timeout: 40000,
+          maximumAge: 0
+        };
+
+        $scope.coordinates = [];
+
+        navigator.geolocation.watchPosition(function(position){
+            $log.info('position changed',position)
+
+            $scope.markers.marker = {
+                draggable:false,
+                message:'Current Position',
+                lat:position.coords.latitude,
+                lng:position.coords.longitude,
+                icon:{}
+            };
+
+            $scope.$apply();
+        
+        },function(reason){
+            $log.error('watchPosition failed',reason)
+        },options)
+
+        // geolocationService.getCurrentPosition()
+        //     .then(function(position){
+        //         $log.info('current location found');
+        //         $ionicLoading.hide();
+
+        //         $scope.center = {
+        //             lat:position.coords.latitude,
+        //             lng:position.coords.longitude,
+        //             zoom:12
+        //         }
+
+        //         $scope.markers = {
+        //             marker: {
+        //                 draggable: true,
+        //                 message: 'Sample message',
+        //                 lat: position.coords.latitude,
+        //                 lng: position.coords.longitude,
+        //                 icon: {}
+        //             }
+        //         };
+
+        //         $scope.paths = {
+        //             circle: {
+        //                 type: 'circle',
+        //                 radius: 10,
+        //                 latlngs: $scope.markers.marker,
+        //                 clickable: false
+        //             }
+        //         };
+
+
+        //     },function(reason){
+        //         $log.error('An error has occured',reason);
+        //         $ionicLoading.hide();
+        //     })
+
+    })
     .controller('GeofencesCtrl', function ($scope, $ionicActionSheet, $timeout, $log, $state, geolocationService, geofenceService, $ionicLoading, $ionicActionSheet) {
+        $log.info('Geofences controller loaded...');
         $ionicLoading.show({
             template: 'Getting geofences from device...',
             duration: 5000
@@ -8,28 +138,29 @@ angular.module('ionic-geofence')
         $scope.geofences = [];
 
         geofenceService.getAll().then(function (geofences) {
+            $log.info('geofenceService.getAll() success');
             $ionicLoading.hide();
             $scope.geofences = geofences;
         }, function (reason) {
             $ionicLoading.hide();
-            $log.log('An Error has occured', reason);
+            $log.error('An Error has occured', reason);
         });
 
         $scope.createNew = function () {
-            $log.log('Obtaining current location...');
+            $log.info('Obtaining current location...');
             $ionicLoading.show({
                 template: 'Obtaining current location...'
             });
             geolocationService.getCurrentPosition()
                 .then(function (position) {
-                    $log.log('Current location found');
+                    $log.info('Current location found');
                     $ionicLoading.hide();
 
                     geofenceService.createdGeofenceDraft = {
-                        id: UUIDjs.create().toString(),
+                        id: UUIDjs.create().toString(), //we might want to override this with contextual formatting
                         latitude: position.coords.latitude,
                         longitude: position.coords.longitude,
-                        radius: 1000,
+                        radius: .01,
                         transitionType: TransitionType.ENTER,
                         notification: {
                             id: geofenceService.getNextNotificationId(),
@@ -43,7 +174,7 @@ angular.module('ionic-geofence')
                         geofenceId: geofenceService.createdGeofenceDraft.id
                     });
                 }, function (reason) {
-                    $log.log('Cannot obtain current location', reason);
+                    $log.error('Cannot obtain current location', reason);
                     $ionicLoading.show({
                         template: 'Cannot obtain current location',
                         duration: 1500
@@ -82,6 +213,7 @@ angular.module('ionic-geofence')
     })
 
 .controller('GeofenceCtrl', function ($scope, $state, $ionicLoading, geofence, geofenceService) {
+
     $scope.geofence = geofence;
     $scope.TransitionType = TransitionType;
 
@@ -90,6 +222,7 @@ angular.module('ionic-geofence')
         lng: geofence.longitude,
         zoom: 12
     };
+
     $scope.markers = {
         marker: {
             draggable: true,
@@ -99,6 +232,7 @@ angular.module('ionic-geofence')
             icon: {}
         }
     };
+
     $scope.paths = {
         circle: {
             type: 'circle',

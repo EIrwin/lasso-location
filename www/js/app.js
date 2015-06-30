@@ -3,9 +3,23 @@
 // angular.module is a global place for creating, registering and retrieving Angular modules
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
-angular.module('ionic-geofence', ['ionic', 'leaflet-directive', 'toaster'])
-    .config(function ($stateProvider, $urlRouterProvider) {
+angular.module('ionic-geofence', ['ionic', 'leaflet-directive', 'toaster','logglyLogger'])
+    .config(function ($stateProvider, $urlRouterProvider,LogglyLoggerProvider) {
+
+        //setup remote logging to Loggly
+        LogglyLoggerProvider.inputToken('987cac32-3bf0-41b4-a783-4bcb5cb85aad');
+
         $stateProvider
+            .state('coordinates',{
+                url:'/coordinates',
+                templateUrl:'views/coordinates.html',
+                controller:'CoordinatesCtrl'
+            })
+            .state('map', {
+                url: '/map',
+                templateUrl: 'views/map.html',
+                controller: 'MapCtrl'
+            })
             .state('geofences', {
                 url: '/geofences',
                 templateUrl: 'views/geofences.html',
@@ -26,7 +40,7 @@ angular.module('ionic-geofence', ['ionic', 'leaflet-directive', 'toaster'])
                 }
             });
 
-        $urlRouterProvider.otherwise('/geofences');
+        $urlRouterProvider.otherwise('/coordinates');
     })
     .run(function ($window, $document, $ionicLoading, $state, $ionicPlatform, $log, $rootScope, toaster) {
         $ionicPlatform.ready(function () {
