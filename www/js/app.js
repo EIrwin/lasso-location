@@ -40,7 +40,7 @@ angular.module('ionic-geofence', ['ionic', 'leaflet-directive', 'toaster','loggl
                 }
             });
 
-        $urlRouterProvider.otherwise('/coordinates');
+        $urlRouterProvider.otherwise('/geofences');
     })
     .run(function ($window, $document, $ionicLoading, $state, $ionicPlatform, $log, $rootScope, toaster) {
         $ionicPlatform.ready(function () {

@@ -210,6 +210,11 @@ angular.module('ionic-geofence')
                 }
             });
         };
+
+        $scope.switchToState = function(state){
+            $log.info('switching to state:' + state);
+            $state.go(state);
+        };
     })
 
 .controller('GeofenceCtrl', function ($scope, $state, $ionicLoading, geofence, geofenceService) {
@@ -269,6 +274,7 @@ angular.module('ionic-geofence')
             $state.go('geofences');
         }
     };
+
 
     function validate () {
         if (!$scope.geofence.notification.text) {
