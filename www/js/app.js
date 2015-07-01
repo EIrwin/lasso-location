@@ -57,6 +57,7 @@ angular.module('ionic-geofence', ['ionic', 'leaflet-directive', 'toaster','loggl
                 $window.geofence.initialize();
 
                 $window.geofence.onTransitionReceived = function (geofences) {
+                    alert('onTransitionReceived');
                     $log.log(geofences);
                     if (geofences) {
                         $rootScope.$apply(function () {

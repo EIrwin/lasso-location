@@ -30,6 +30,7 @@ angular.module('ionic-geofence')
         },options)
 
     })
+
     .controller('MapCtrl', function ($scope, $log, geolocationService, geofenceService, $ionicLoading) {
         $log.info('Map controller loaded...');
 
@@ -38,22 +39,20 @@ angular.module('ionic-geofence')
             duration:3000
         });
 
+        //coordinates are irrelevant
         var lat = 33.729533599999996;
         var lng = -111.98840829999999;
 
         $scope.center = {
             lat:lat,
             lng:lng,
-            zoom:12
+            zoom:20
         };
 
         $scope.markers = {
             marker: {
-                draggable: true,
-                message: 'Sample message',
                 lat: lat,
-                lng: lng,
-                icon: {}
+                lng: lng
             }
         };
 
@@ -77,6 +76,7 @@ angular.module('ionic-geofence')
         navigator.geolocation.watchPosition(function(position){
             $log.info('position changed',position)
 
+            //update the current position marker
             $scope.markers.marker = {
                 draggable:false,
                 message:'Current Position',
@@ -91,41 +91,46 @@ angular.module('ionic-geofence')
             $log.error('watchPosition failed',reason)
         },options)
 
-        // geolocationService.getCurrentPosition()
-        //     .then(function(position){
-        //         $log.info('current location found');
-        //         $ionicLoading.hide();
-
-        //         $scope.center = {
-        //             lat:position.coords.latitude,
-        //             lng:position.coords.longitude,
-        //             zoom:12
-        //         }
-
-        //         $scope.markers = {
-        //             marker: {
-        //                 draggable: true,
-        //                 message: 'Sample message',
-        //                 lat: position.coords.latitude,
-        //                 lng: position.coords.longitude,
-        //                 icon: {}
-        //             }
-        //         };
-
-        //         $scope.paths = {
-        //             circle: {
-        //                 type: 'circle',
-        //                 radius: 10,
-        //                 latlngs: $scope.markers.marker,
-        //                 clickable: false
-        //             }
-        //         };
 
 
-        //     },function(reason){
-        //         $log.error('An error has occured',reason);
-        //         $ionicLoading.hide();
-        //     })
+        geolocationService.getCurrentPosition()
+            .then(function (position) {
+
+                $log.info('Current location found');
+
+                var geofence = {
+                    id: UUIDjs.create().toString(),
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude,
+                    radius: 5,
+                    transitionType: TransitionType.ENTER,
+                    notification: {
+                        id: geofenceService.getNextNotificationId(),
+                        title: 'Ionic geofence example',
+                        text: '',
+                        icon: 'res://ic_menu_mylocation',
+                        openAppOnClick: true
+                    }
+                }
+
+                geofenceService.addOrUpdate(geofence);
+
+                $scope.paths = {
+                    circle: {
+                        type: 'circle',
+                        radius: 5,
+                        latlngs: $scope.markers.marker,
+                        clickable: false
+                    }
+                };
+
+            }, function (reason) {
+                $log.error('Cannot obtain current location', reason);
+                $ionicLoading.show({
+                    template: 'Cannot obtain current location',
+                    duration: 1500
+                });
+            });
 
     })
     .controller('GeofencesCtrl', function ($scope, $ionicActionSheet, $timeout, $log, $state, geolocationService, geofenceService, $ionicLoading, $ionicActionSheet) {
@@ -160,7 +165,7 @@ angular.module('ionic-geofence')
                         id: UUIDjs.create().toString(), //we might want to override this with contextual formatting
                         latitude: position.coords.latitude,
                         longitude: position.coords.longitude,
-                        radius: .01,
+                        radius: 5,
                         transitionType: TransitionType.ENTER,
                         notification: {
                             id: geofenceService.getNextNotificationId(),
@@ -225,7 +230,7 @@ angular.module('ionic-geofence')
     $scope.center = {
         lat: geofence.latitude,
         lng: geofence.longitude,
-        zoom: 12
+        zoom: 20
     };
 
     $scope.markers = {
